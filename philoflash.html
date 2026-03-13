@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PhiloFlash — Citations du Bac</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c28;
+    --border: #2a2a3d;
+    --text: #e8e8f0;
+    --text-muted: #7070a0;
+    --gold: #f0c040;
+    --gold-dim: #a08020;
+    --white: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRAIN OVERLAY */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999; opacity: 0.4;
+  }
+
+  /* ──── APP SHELL ──── */
+  #app { max-width: 480px; margin: 0 auto; padding: 0 0 80px; min-height: 100vh; position: relative; }
+
+  /* ──── HEADER ──── */
+  header {
+    padding: 24px 20px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+    background: linear-gradient(to bottom, var(--bg) 80%, transparent);
+  }
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px; font-weight: 900; letter-spacing: -0.5px;
+    color: var(--gold);
+  }
+  .logo span { color: var(--text-muted); font-weight: 400; font-style: italic; font-size: 14px; display: block; margin-top: -2px; }
+  .score-pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px; padding: 6px 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px; color: var(--gold);
+  }
+
+  /* ──── SCREENS ──── */
+  .screen { padding: 20px; animation: fadeUp 0.3s ease; }
+  @keyframes fadeUp { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+  /* ──── HOME ──── */
+  .hero {
+    text-align: center; padding: 28px 0 20px;
+  }
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px; font-weight: 900; line-height: 1.1;
+    color: var(--text);
+  }
+  .hero-title em { color: var(--gold); font-style: italic; }
+  .hero-sub { color: var(--text-muted); font-size: 14px; margin-top: 8px; line-height: 1.5; }
+
+  .modes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
+  .mode-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 18px 14px;
+    cursor: pointer; transition: all 0.2s;
+    text-align: center;
+  }
+  .mode-card:hover, .mode-card:active { border-color: var(--gold); background: var(--surface2); transform: scale(0.98); }
+  .mode-card .icon { font-size: 28px; margin-bottom: 8px; }
+  .mode-card h3 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .mode-card p { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+  .mode-card.featured {
+    grid-column: span 2;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border-color: var(--gold-dim);
+  }
+
+  .section-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 2px;
+    color: var(--text-muted); margin-bottom: 12px; margin-top: 28px;
+  }
+  .themes-list { display: flex; flex-direction: column; gap: 8px; }
+  .theme-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .theme-row:hover, .theme-row:active { background: var(--surface2); transform: translateX(4px); }
+  .theme-row .emoji { font-size: 22px; width: 36px; text-align: center; }
+  .theme-row .info { flex: 1; }
+  .theme-row .info h4 { font-size: 14px; font-weight: 500; color: var(--text); }
+  .theme-row .info small { font-size: 11px; color: var(--text-muted); }
+  .theme-row .arrow { color: var(--text-muted); font-size: 16px; }
+  .progress-bar-wrap { height: 3px; background: var(--border); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
+
+  /* ──── THEME SCREEN ──── */
+  .theme-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 0 20px;
+  }
+  .back-btn {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 8px 12px; cursor: pointer;
+    font-size: 16px; color: var(--text); transition: all 0.2s;
+  }
+  .back-btn:hover { background: var(--surface2); }
+  .theme-header h2 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; }
+
+  .mode-tabs {
+    display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 4px;
+  }
+  .mode-tab {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 6px 14px; cursor: pointer;
+    font-size: 12px; font-weight: 500; white-space: nowrap;
+    transition: all 0.2s; color: var(--text-muted);
+  }
+  .mode-tab.active { background: var(--gold); color: var(--bg); border-color: var(--gold); font-weight: 600; }
+
+  /* ──── FLASHCARD ──── */
+  .flashcard-area { perspective: 1000px; }
+  .flashcard {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px; padding: 32px 28px;
+    min-height: 260px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+    position: relative; overflow: hidden;
+  }
+  .flashcard:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+  .flashcard::before {
+    content: ''; position: absolute; top: -60px; right: -60px;
+    width: 180px; height: 180px; border-radius: 50%;
+    background: radial-gradient(circle, var(--theme-color, #7c3aed22) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .card-face { animation: fadeIn 0.25s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .card-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 2px;
+    color: var(--text-muted); margin-bottom: 16px;
+  }
+  .card-citation {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px; line-height: 1.6; font-style: italic;
+    color: var(--text); flex: 1;
+  }
+  .card-citation .blank {
+    display: inline-block;
+    border-bottom: 2px solid var(--gold);
+    min-width: 80px; color: transparent;
+    background: var(--gold-dim); border-radius: 3px;
+    vertical-align: middle; height: 20px;
+  }
+  .card-hint {
+    text-align: center; margin-top: 20px;
+    font-size: 12px; color: var(--text-muted);
+  }
+  .card-hint span { background: var(--surface2); padding: 4px 10px; border-radius: 20px; }
+
+  .card-back-author {
+    font-family: 'Space Mono', monospace;
+    font-size: 16px; font-weight: 700; color: var(--gold);
+    margin-bottom: 4px;
+  }
+  .card-back-oeuvre { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; font-style: italic; }
+  .card-back-expl { font-size: 14px; line-height: 1.6; color: var(--text); border-top: 1px solid var(--border); padding-top: 16px; }
+
+  .card-actions { display: flex; gap: 10px; margin-top: 16px; }
+  .card-btn {
+    flex: 1; padding: 14px; border-radius: 12px;
+    border: none; cursor: pointer; font-size: 15px;
+    font-weight: 600; transition: all 0.15s; font-family: 'Inter', sans-serif;
+  }
+  .card-btn.fail { background: #2d1515; color: #ff6b6b; border: 1px solid #5a2020; }
+  .card-btn.pass { background: #152d15; color: #6bff6b; border: 1px solid #205a20; }
+  .card-btn.fail:hover { background: #3d2020; }
+  .card-btn.pass:hover { background: #203d20; }
+
+  .card-counter {
+    text-align: center; font-family: 'Space Mono', monospace;
+    font-size: 12px; color: var(--text-muted); margin-bottom: 12px;
+  }
+
+  /* ──── QUIZ ──── */
+  .quiz-question {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px 20px;
+    margin-bottom: 16px;
+  }
+  .quiz-q-label { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
+  .quiz-q-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px; line-height: 1.65; font-style: italic; color: var(--text);
+  }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+  .quiz-option {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px;
+    cursor: pointer; transition: all 0.15s;
+    font-size: 14px; font-weight: 500; color: var(--text);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .quiz-option:hover:not(.disabled) { border-color: var(--gold); background: var(--surface2); }
+  .quiz-option.correct { background: #152d15; border-color: #4ade80; color: #4ade80; }
+  .quiz-option.wrong { background: #2d1515; border-color: #f87171; color: #f87171; }
+  .quiz-option.disabled { pointer-events: none; opacity: 0.5; }
+  .quiz-option .opt-letter {
+    width: 26px; height: 26px; border-radius: 8px;
+    background: var(--surface2); display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .quiz-feedback {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-top: 12px;
+    font-size: 13px; line-height: 1.6; color: var(--text);
+    animation: fadeIn 0.3s ease;
+  }
+  .quiz-feedback strong { color: var(--gold); font-family: 'Space Mono', monospace; display: block; margin-bottom: 4px; }
+  .next-btn {
+    width: 100%; padding: 16px; border-radius: 12px; border: none;
+    background: var(--gold); color: var(--bg); font-size: 15px; font-weight: 700;
+    cursor: pointer; margin-top: 12px; font-family: 'Inter', sans-serif;
+    transition: all 0.2s;
+  }
+  .next-btn:hover { background: #e0b030; transform: scale(0.99); }
+
+  /* ──── TROUS ──── */
+  .trous-input {
+    display: block; width: 100%; margin: 16px 0;
+    background: var(--surface2); border: 2px solid var(--border);
+    border-radius: 12px; padding: 14px 16px;
+    font-size: 16px; color: var(--text); font-family: 'Inter', sans-serif;
+    outline: none; transition: border-color 0.2s;
+  }
+  .trous-input:focus { border-color: var(--gold); }
+  .trous-input.correct-input { border-color: #4ade80; background: #152d15; }
+  .trous-input.wrong-input { border-color: #f87171; background: #2d1515; }
+
+  /* ──── RESULTS ──── */
+  .results-screen { text-align: center; padding: 40px 20px; }
+  .results-score {
+    font-family: 'Playfair Display', serif;
+    font-size: 72px; font-weight: 900; color: var(--gold);
+    line-height: 1;
+  }
+  .results-score small { font-size: 28px; color: var(--text-muted); }
+  .results-msg { font-size: 18px; margin: 12px 0 8px; font-weight: 600; }
+  .results-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 32px; }
+  .results-btn {
+    display: inline-block; padding: 14px 28px; border-radius: 12px;
+    background: var(--gold); color: var(--bg); font-size: 15px;
+    font-weight: 700; cursor: pointer; border: none; font-family: 'Inter', sans-serif;
+    margin: 6px; transition: all 0.2s;
+  }
+  .results-btn.outline {
+    background: transparent; border: 1px solid var(--border); color: var(--text);
+  }
+  .results-btn:hover { opacity: 0.9; transform: scale(0.98); }
+
+  /* ──── BADGE ──── */
+  .badge-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; justify-content: center; }
+  .badge {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 20px; padding: 6px 14px; font-size: 12px;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  /* ──── NAV ──── */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 480px;
+    background: var(--surface); border-top: 1px solid var(--border);
+    display: flex; z-index: 200;
+  }
+  .nav-item {
+    flex: 1; padding: 12px 0; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    transition: all 0.2s; font-size: 11px; color: var(--text-muted);
+  }
+  .nav-item span:first-child { font-size: 20px; }
+  .nav-item.active { color: var(--gold); }
+
+  /* ──── STREAK ──── */
+  .streak-banner {
+    background: linear-gradient(135deg, #2d1a00, #3d2800);
+    border: 1px solid #6b4000; border-radius: 12px;
+    padding: 12px 16px; display: flex; align-items: center; gap: 12px;
+    margin-bottom: 16px;
+  }
+  .streak-banner .flame { font-size: 28px; }
+  .streak-banner h4 { font-size: 14px; font-weight: 600; color: var(--gold); }
+  .streak-banner p { font-size: 12px; color: #a06020; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+// ───────────────────────────────────────────────────────────────
+// DATA
+// ───────────────────────────────────────────────────────────────
+const themes = [
+  { id:1, slug:"philosophie", title:"Qu'est-ce que la philosophie ?", emoji:"🦉", color:"#7C3AED",
+    citations:[
+      { id:"p1", auteur:"Aristote", oeuvre:"Métaphysique", citation:"C'est l'étonnement qui poussa comme aujourd'hui les premiers penseurs aux spéculations philosophiques.", explication:"La philosophie naît de l'émerveillement, de l'écart entre ce qui est et ce qui devrait être." },
+      { id:"p2", auteur:"Aristote", oeuvre:"Métaphysique", citation:"Le commencement de toutes les sciences, c'est l'étonnement de ce que les choses sont ce qu'elles sont.", explication:"En philosophie, rien ne va de soi. Le philosophe s'étonne et s'interroge sur tout." },
+      { id:"p3", auteur:"Aristote", oeuvre:"Métaphysique", citation:"Vous dites qu'il faut philosopher ? Alors il faut en effet philosopher. Vous dites qu'il ne faut pas philosopher ? Alors il faut encore philosopher pour le démontrer. De toute manière, il est nécessaire de philosopher.", explication:"La philosophie est incontournable. On ne saurait se passer d'elle." },
+      { id:"p4", auteur:"Albert Thibaudet", oeuvre:"", citation:"La philosophie peut se définir non comme la science de tout mais comme la science du tout.", explication:"La philosophie s'intéresse à l'homme et aux rapports généraux qu'il entretient avec ses semblables, la nature et l'Absolu." },
+      { id:"p5", auteur:"Bertrand Russell", oeuvre:"", citation:"La valeur de la philosophie doit en réalité surtout résider dans son incertitude même.", explication:"La philosophie invite à réfléchir constamment sur les réponses qu'on croit avoir trouvées." },
+      { id:"p6", auteur:"Karl Jaspers", oeuvre:"Introduction à la philosophie", citation:"L'essence de la philosophie, c'est la recherche de la vérité, non sa possession.", explication:"Ce qui fait la philosophie, c'est l'insatiable désir de connaître davantage." },
+      { id:"p7", auteur:"Karl Jaspers", oeuvre:"Introduction à la philosophie", citation:"Faire de la philosophie, c'est être en route ; les questions en philosophie sont plus essentielles que les réponses et chaque réponse devient une nouvelle question.", explication:"La philosophie est une quête perpétuelle de la vérité, antidogmatique par essence." },
+      { id:"p8", auteur:"Karl Marx", oeuvre:"XIe thèse sur Feuerbach", citation:"Jusqu'ici les philosophes n'ont fait qu'interpréter le monde de différentes manières. Il s'agit maintenant de le transformer.", explication:"La philosophie doit nous donner des règles d'action ; la théorie et la pratique ne se dissocient pas." },
+      { id:"p9", auteur:"Emmanuel Kant", oeuvre:"Critique de la raison pure", citation:"Jusqu'ici, on ne peut apprendre aucune philosophie : car où est-elle, qui la possède et à quoi peut-on la connaître ? On ne peut qu'apprendre à philosopher.", explication:"Philosopher, c'est réfléchir par soi-même, exercer sa propre raison — pas appliquer des formules." },
+      { id:"p10", auteur:"René Descartes", oeuvre:"Préface aux principes de la philosophie", citation:"C'est proprement avoir les yeux fermés sans tâcher jamais de les ouvrir que de vivre sans philosopher.", explication:"La philosophie permet à l'homme de vivre avec sagesse et prudence. Elle est indispensable au bonheur." },
+      { id:"p11", auteur:"René Descartes", oeuvre:"Préface aux principes de la philosophie", citation:"C'est la philosophie seule qui nous distingue des sauvages et barbares.", explication:"La philosophie fait l'essence même de l'homme." },
+      { id:"p12", auteur:"Socrate", oeuvre:"", citation:"Je ne sais qu'une chose c'est que je ne sais rien.", explication:"Le philosophe est un homme humble, conscient de son ignorance et de la limite de ses connaissances." },
+      { id:"p13", auteur:"Platon", oeuvre:"Phédon", citation:"Philosopher c'est apprendre à mourir.", explication:"La philosophie est accès à l'intelligible et refus du sensible. Le philosophe méprise les richesses matérielles." },
+      { id:"p14", auteur:"Épicure", oeuvre:"", citation:"Quand on est jeune, il faut se mettre à philosopher et quand on est vieux, il ne faut pas se lasser de philosopher.", explication:"La philosophie mérite qu'on lui consacre toute notre existence." },
+      { id:"p15", auteur:"Pascal", oeuvre:"Pensées", citation:"Se moquer de la philosophie c'est vraiment philosopher.", explication:"La philosophie est l'unique discipline qui se prend elle-même pour objet." },
+      { id:"p16", auteur:"Marcien Towa", oeuvre:"Essai", citation:"La philosophie est essentiellement sacrilège.", explication:"Il n'y a pas en philosophie de sacré ou de tabou. Tout passe par le crible de l'esprit critique." },
+      { id:"p17", auteur:"Ebénézer Njoh Mouelle", oeuvre:"Jalons", citation:"La philosophie naît des situations troubles.", explication:"La réflexion philosophique naît du fait qu'il y a un problème, une crise, un manque dans la réalité." },
+      { id:"p18", auteur:"Hegel", oeuvre:"Principes de philosophie du droit", citation:"La chouette de Minerve ne prend son envol qu'au crépuscule.", explication:"Le philosophe réfléchit sur ce qui a déjà été accompli, après que cela ait été accompli." },
+      { id:"p19", auteur:"Rabelais", oeuvre:"", citation:"Science sans conscience n'est que ruine de l'âme.", explication:"Sans la philosophie, les produits de la technoscience vont se retourner contre l'homme lui-même." },
+      { id:"p20", auteur:"Hegel", oeuvre:"", citation:"Toute philosophie est fille de son temps.", explication:"Tout système philosophique trouve son origine dans des circonstances historiques précises." },
+    ]
+  },
+  { id:2, slug:"conscience", title:"La conscience et l'inconscient", emoji:"🧠", color:"#0891B2",
+    citations:[
+      { id:"c1", auteur:"Sigmund Freud", oeuvre:"", citation:"Le Moi n'est pas maître dans sa propre demeure.", explication:"La psychanalyse refuse que la conscience soit toute puissante et constitue le fond du psychisme humain." },
+      { id:"c2", auteur:"Sigmund Freud", oeuvre:"Science des rêves", citation:"L'interprétation des rêves est la voie royale qui mène à la connaissance de l'inconscient dans la vie psychique.", explication:"Le rêve est une manifestation privilégiée de notre inconscient dont l'interprétation est capitale." },
+      { id:"c3", auteur:"Jean-Paul Sartre", oeuvre:"L'Etre et le néant", citation:"L'inconscient n'est que la mauvaise foi chosifiée.", explication:"L'homme est toujours conscient. L'illusion de l'inconscient vient de la mauvaise foi." },
+      { id:"c4", auteur:"René Descartes", oeuvre:"Discours de la méthode", citation:"Je pense donc je suis.", explication:"Le doute révèle que douter c'est penser. Si je pense, il faut bien que j'existe. La pensée est le fondement de toute connaissance." },
+      { id:"c5", auteur:"Blaise Pascal", oeuvre:"", citation:"L'homme n'est qu'un roseau, le plus faible de la nature mais c'est un roseau pensant.", explication:"L'essence de l'homme réside dans la conscience. Par la conscience, l'homme s'élève au-dessus des autres créatures." },
+      { id:"c6", auteur:"Edmund Husserl", oeuvre:"Méditation cartésienne", citation:"Toute conscience est conscience de quelque chose.", explication:"La conscience est toujours ouverture vers le monde. Elle vise un objet extérieur à elle-même." },
+      { id:"c7", auteur:"Spinoza", oeuvre:"Ethique", citation:"Les hommes se croient libres pour la seule raison qu'ils sont conscients de leurs actions et ignorants des causes par lesquelles ils sont déterminés.", explication:"L'illusion de la conscience vient du fait que les hommes ignorent les causes profondes et réelles de leurs actions." },
+      { id:"c8", auteur:"Karl Marx", oeuvre:"L'Idéologie allemande", citation:"Ce n'est pas la conscience des hommes qui détermine leur existence, mais c'est leur existence sociale qui détermine leur conscience.", explication:"L'homme est conditionné par les réalités socio-historiques qu'il a connues." },
+      { id:"c9", auteur:"Henri Bergson", oeuvre:"", citation:"Toute conscience signifie choix.", explication:"La conscience est une activité de sélection, de discernement liée au présent et à l'action." },
+      { id:"c10", auteur:"Alain", oeuvre:"", citation:"L'inconscient est une méprise sur le moi, c'est une idolâtrie du corps.", explication:"L'inconscient psychique n'existe pas selon Alain. Tout ce qui est psychique est conscient." },
+      { id:"c11", auteur:"Jean-Paul Sartre", oeuvre:"L'Etre et le néant", citation:"Il n'y a pour une conscience qu'une façon d'exister, c'est d'avoir conscience qu'elle existe.", explication:"Toute conscience est conscience d'elle-même. L'homme ne peut pas être sans savoir qu'il est." },
+    ]
+  },
+  { id:3, slug:"desir", title:"Désir et passion", emoji:"🔥", color:"#DC2626",
+    citations:[
+      { id:"d1", auteur:"Hegel", oeuvre:"La raison dans l'histoire", citation:"Rien de grand ne s'est accompli dans le monde sans passion.", explication:"C'est poussé par leurs passions que les hommes font avancer l'histoire et contribuent au progrès." },
+      { id:"d2", auteur:"Emmanuel Kant", oeuvre:"Anthropologie du point de vue pragmatique", citation:"L'émotion est une ivresse, la passion est une maladie.", explication:"L'émotion est un mouvement bref et spontané ; la passion est un état chronique qui asservit l'homme." },
+      { id:"d3", auteur:"Emmanuel Kant", oeuvre:"Anthropologie du point de vue pragmatique", citation:"Les passions sont sans exception mauvaises.", explication:"La passion aliène l'homme au lieu de le libérer, c'est une perversion de la raison." },
+      { id:"d4", auteur:"Spinoza", oeuvre:"Ethique", citation:"Le désir est l'essence de l'homme et le pousse à agir dans le but d'atteindre la satisfaction.", explication:"Pour Spinoza, le désir est positif : c'est la force vitale même de l'homme." },
+      { id:"d5", auteur:"Jean-Jacques Rousseau", oeuvre:"La Nouvelle Héloïse", citation:"Malheur à qui n'a plus rien à désirer ! Il perd pour ainsi dire tout ce qu'il possède. On jouit moins de ce qu'on obtient que de ce qu'on espère et l'on n'est heureux qu'avant d'être heureux.", explication:"Il y a une positivité du désir. Le bonheur réside dans le désir lui-même, non dans son accomplissement." },
+      { id:"d6", auteur:"Sigmund Freud", oeuvre:"Introduction à la psychanalyse", citation:"Désirs et passions sont des pulsions inconscientes dont la source est le ça.", explication:"Les désirs et passions trouvent leur source dans la partie inconsciente du psychisme." },
+      { id:"d7", auteur:"Alain", oeuvre:"Eléments de philosophie", citation:"La passion est toujours malheureuse.", explication:"L'issue de la passion est toujours négative selon Alain." },
+      { id:"d8", auteur:"Épictète", oeuvre:"", citation:"Ce n'est pas par la satisfaction des désirs que s'obtient la liberté mais par la destruction du désir.", explication:"On ne peut être pleinement libre que lorsqu'on domine et fait taire ses désirs." },
+      { id:"d9", auteur:"Épicure", oeuvre:"Lettre à Ménécée", citation:"Le plaisir est le commencement et la fin de la vie heureuse.", explication:"Le plaisir est à la fois le principe qui guide nos actions et la fin que nous devons rechercher." },
+      { id:"d10", auteur:"Stendhal", oeuvre:"", citation:"La passion est le moteur du dépassement.", explication:"La passion est la force et l'énergie qui sous-tend la volonté et imprime un dynamisme à nos actes." },
+    ]
+  },
+  { id:4, slug:"liberte", title:"Liberté et responsabilité", emoji:"⛓️", color:"#059669",
+    citations:[
+      { id:"l1", auteur:"Jean-Paul Sartre", oeuvre:"L'Existentialisme est un humanisme", citation:"L'homme est condamné à être libre.", explication:"La liberté de l'homme est absolue. La seule chose qu'on ne peut pas faire c'est ne pas être libre. Ne pas choisir c'est choisir de ne pas choisir." },
+      { id:"l2", auteur:"Jean-Paul Sartre", oeuvre:"L'Existentialisme est un humanisme", citation:"L'existence précède l'essence.", explication:"L'homme existe d'abord et se définit ensuite. Il choisit ce qu'il veut être sans être tributaire d'une nature qui lui préexisterait." },
+      { id:"l3", auteur:"Jean-Jacques Rousseau", oeuvre:"Du Contrat social", citation:"Renoncer à sa liberté, c'est renoncer à sa qualité d'homme.", explication:"La liberté définit l'homme. La renoncer c'est renoncer à l'humanité qui est en nous." },
+      { id:"l4", auteur:"Jean-Jacques Rousseau", oeuvre:"Du Contrat social", citation:"L'obéissance à la loi qu'on s'est prescrite est liberté.", explication:"La liberté ne consiste pas à suivre nos désirs mais dans le libre choix des contraintes qu'on se donne à soi-même." },
+      { id:"l5", auteur:"Spinoza", oeuvre:"Ethique", citation:"Les hommes se trompent en ce qu'ils pensent être libres par ce qu'ils ignorent les causes par lesquelles ils sont déterminés à agir.", explication:"Le libre-arbitre est une illusion. Les hommes sont déterminés par des causes qui leur sont inconscientes." },
+      { id:"l6", auteur:"Emmanuel Kant", oeuvre:"Fondements de la métaphysique des mœurs", citation:"Tu dois donc tu peux.", explication:"Pour que l'obligation morale ait un sens, je dois être libre de lui obéir ou non. La liberté est le postulat de la morale." },
+      { id:"l7", auteur:"Montesquieu", oeuvre:"De l'esprit des lois", citation:"La liberté est le droit de faire tout ce que les lois permettent.", explication:"L'absence de contrainte ne conduit pas à la liberté. Celle-ci n'existe que là où il y a des lois donnant droits et devoirs." },
+      { id:"l8", auteur:"Antoine de Saint-Exupéry", oeuvre:"Terre des hommes", citation:"Etre homme, c'est être responsable.", explication:"L'homme se reconnaît par son sens de la responsabilité." },
+      { id:"l9", auteur:"Jean-Paul Sartre", oeuvre:"L'Existentialisme est un humanisme", citation:"Notre responsabilité est beaucoup plus grande que nous ne pourrions le supposer, car elle engage l'humanité entière.", explication:"L'homme n'est pas seulement responsable de ce qu'il est, mais aussi de tous les autres hommes." },
+      { id:"l10", auteur:"Ebénézer Njoh Mouelle", oeuvre:"", citation:"La liberté de l'homme est plus exactement dans le meilleur des cas une libération perpétuelle.", explication:"La liberté n'est pas un état définitif. C'est une conquête perpétuelle." },
+    ]
+  },
+  { id:5, slug:"morale", title:"La morale", emoji:"⚖️", color:"#D97706",
+    citations:[
+      { id:"m1", auteur:"Emmanuel Kant", oeuvre:"Fondements de la métaphysique des mœurs", citation:"Agis de telle sorte que tu traites l'humanité aussi bien dans ta personne que dans la personne de tout autre toujours en même temps comme une fin, et jamais simplement comme un moyen.", explication:"Un acte est moral lorsqu'il consacre la dignité humaine en respectant les droits fondamentaux des hommes." },
+      { id:"m2", auteur:"Emmanuel Kant", oeuvre:"Fondements de la métaphysique des mœurs", citation:"Agis toujours de telle sorte que la maxime de ton action puisse être érigée en règle universelle.", explication:"Avant de poser un acte, demandes-toi : Et si tout le monde en faisait autant ?" },
+      { id:"m3", auteur:"Jean-Paul Sartre", oeuvre:"L'Etre et le Néant", citation:"L'homme est ce par quoi les valeurs surgissent dans le monde.", explication:"L'homme est le créateur des valeurs. Il est l'auteur et le seul responsable de ses actes." },
+      { id:"m4", auteur:"Nietzsche", oeuvre:"", citation:"La morale n'est qu'un langage figuré des passions.", explication:"Les valeurs morales traduisent en réalité notre instinct de domination et nos passions les plus fortes." },
+      { id:"m5", auteur:"Blaise Pascal", oeuvre:"Pensées", citation:"Vérité en deçà des Pyrénées, erreur au-delà.", explication:"Le bien et le mal, le juste et l'injuste sont appréciés en fonction de l'endroit où on se trouve. Les valeurs sont relatives." },
+      { id:"m6", auteur:"Jean-Jacques Rousseau", oeuvre:"Emile ou de l'éducation", citation:"Il est au fond des âmes un principe inné de justice et de vertu sur lequel, malgré nos propres maximes, nous jugeons nos actions et celles d'autrui comme bonnes ou mauvaises. C'est à ce principe que je donne le nom de conscience.", explication:"La conscience morale est un instinct naturel de justice gravé dans l'âme humaine." },
+      { id:"m7", auteur:"Henri Bergson", oeuvre:"", citation:"A la civilisation technicienne il eût fallu un supplément d'âme.", explication:"Il convient d'humaniser le monde industriel dans lequel nous vivons." },
+      { id:"m8", auteur:"Emmanuel Kant", oeuvre:"Fondements de la métaphysique des mœurs", citation:"La bonne volonté paraît être la condition indispensable qui nous rend digne d'être heureux.", explication:"Un acte est moral lorsqu'il est posé par devoir et fondé sur la bonne volonté." },
+    ]
+  },
+  { id:6, slug:"societe", title:"La société", emoji:"🏛️", color:"#7C3AED",
+    citations:[
+      { id:"s1", auteur:"Aristote", oeuvre:"La politique", citation:"L'homme est un animal politique.", explication:"L'homme ne peut vivre qu'avec ses semblables. L'origine de l'homme coïncide avec celle de la société." },
+      { id:"s2", auteur:"Jean-Jacques Rousseau", oeuvre:"Discours sur les sciences et les arts", citation:"L'homme naît bon, c'est la société qui le corrompt.", explication:"La société est responsable de la dépravation morale de l'homme, qui est bon à la naissance." },
+      { id:"s3", auteur:"Thomas Hobbes", oeuvre:"Le Léviathan", citation:"A l'état de nature l'homme est un loup pour l'homme.", explication:"L'état de nature est un état de guerre de chacun contre chacun. L'entrée en société apparaît donc comme nécessaire." },
+      { id:"s4", auteur:"Émile Durkheim", oeuvre:"Les règles de la méthode sociologique", citation:"Les faits sociaux consistent en des manières d'agir, de penser et de sentir, extérieures à l'individu, et qui sont douées d'un pouvoir de coercition en vertu duquel ils s'imposent à lui.", explication:"L'homme est déterminé. Ses faits et gestes lui sont imposés par la société." },
+      { id:"s5", auteur:"Jean-Jacques Rousseau", oeuvre:"Du contrat social", citation:"Trouver une forme d'association qui défende et protège de toute la force commune, la personne et les biens de chaque associé et par laquelle chacun s'unissant à tous n'obéisse pourtant qu'à lui-même et reste aussi libre qu'auparavant.", explication:"Résumé du pacte social que préconise Rousseau, condition d'une coexistence harmonieuse." },
+      { id:"s6", auteur:"Henri Bergson", oeuvre:"Les deux sources de la morale et de la religion", citation:"La société est dans l'individu comme l'individu est dans la société.", explication:"L'homme est par nature un être social." },
+    ]
+  },
+  { id:7, slug:"etat", title:"L'État et le pouvoir", emoji:"🏴", color:"#1D4ED8",
+    citations:[
+      { id:"e1", auteur:"Abraham Lincoln", oeuvre:"", citation:"La démocratie est le gouvernement du peuple par le peuple et pour le peuple.", explication:"La démocratie est un régime où le peuple s'auto-gouverne." },
+      { id:"e2", auteur:"Montesquieu", oeuvre:"De l'Esprit des lois", citation:"C'est une expérience éternelle que tout homme qui a du pouvoir est porté à en abuser, il va jusqu'à ce qu'il trouve des limites.", explication:"Posséder le pouvoir, c'est être tenté d'en abuser. Il faut donc instituer des contre-pouvoirs." },
+      { id:"e3", auteur:"Montesquieu", oeuvre:"De l'Esprit des lois", citation:"Il faut que par la disposition des choses, le pouvoir arrête le pouvoir.", explication:"Principe de la séparation des pouvoirs pour éviter le despotisme." },
+      { id:"e4", auteur:"Nicolas Machiavel", oeuvre:"Le Prince", citation:"La fin justifie les moyens.", explication:"En politique seul compte l'objectif à atteindre. Un chef politique doit être plus rusé que sage." },
+      { id:"e5", auteur:"Nietzsche", oeuvre:"", citation:"L'État est le plus froid de tous les monstres froids.", explication:"L'État détruit et aliène le peuple." },
+      { id:"e6", auteur:"Hegel", oeuvre:"", citation:"L'État est un dieu réel à part.", explication:"L'État est la manifestation du rationnel en soi. L'homme ne peut avoir une existence digne que dans l'État." },
+      { id:"e7", auteur:"Emmanuel Kant", oeuvre:"", citation:"La possession du pouvoir corrompt inévitablement le libre jugement de la raison.", explication:"Toute personne qui détient le pouvoir succombe à la tentation d'en abuser." },
+      { id:"e8", auteur:"Jean-Jacques Rousseau", oeuvre:"Du contrat social", citation:"S'il y avait un peuple de dieux, il se gouvernerait démocratiquement. Un gouvernement si parfait ne convient pas à des hommes.", explication:"La démocratie est le régime idéal mais les hommes ne pourraient en appliquer les principes à la lettre." },
+    ]
+  },
+  { id:8, slug:"violence", title:"La violence", emoji:"⚡", color:"#BE123C",
+    citations:[
+      { id:"v1", auteur:"Héraclite d'Éphèse", oeuvre:"Fragment 60", citation:"Le combat est père et roi de tout.", explication:"La violence règne partout, elle est nécessaire et bénéfique." },
+      { id:"v2", auteur:"Gandhi", oeuvre:"L'Autonomie de l'Inde", citation:"La violence est la loi de la brute. La dignité humaine veut une loi plus haute : la force de l'esprit.", explication:"Le principe qui doit éclairer toute action humaine est la non-violence." },
+      { id:"v3", auteur:"Karl Marx", oeuvre:"Principes du communisme", citation:"La violence est l'accoucheuse de toute vieille société qui en porte une nouvelle dans ses flancs.", explication:"La violence est quelquefois positive puisque toute nouvelle société naît de la dialectique de la violence." },
+      { id:"v4", auteur:"Jean-Jacques Rousseau", oeuvre:"Du contrat social", citation:"Force ne fait pas droit.", explication:"La violence n'est pas synonyme du droit. Très souvent, elle le détruit." },
+      { id:"v5", auteur:"Sigmund Freud", oeuvre:"Malaise dans la civilisation", citation:"L'homme n'est point cet être débonnaire au cœur assoiffé d'amour.", explication:"Par nature, l'homme est animé par deux principes : Eros (plaisir) et Thanatos (agressivité)." },
+    ]
+  },
+  { id:9, slug:"droit", title:"Le droit et la justice", emoji:"⚖️", color:"#0F766E",
+    citations:[
+      { id:"dr1", auteur:"Blaise Pascal", oeuvre:"", citation:"Le droit sans la force est impuissant et la force sans le droit est tyrannique.", explication:"La force ne fonde pas le droit mais se met à son service." },
+      { id:"dr2", auteur:"Jean de La Fontaine", oeuvre:"Fables", citation:"La raison du plus fort est toujours la meilleure.", explication:"Le plus fort détient toujours la vérité et le droit." },
+      { id:"dr3", auteur:"Emmanuel Kant", oeuvre:"", citation:"Le droit est l'ensemble des conditions qui permettent à la liberté de chacun de s'accorder avec la liberté de tous.", explication:"Le droit consiste à agir dans les limites de notre liberté de façon à ne pas porter atteinte à celle des autres." },
+      { id:"dr4", auteur:"Platon", oeuvre:"La République", citation:"Nul n'est juste volontairement sinon par contrainte.", explication:"Les hommes ne sont pas naturellement justes. C'est parce qu'ils ne peuvent pas agir impunément qu'ils respectent la loi." },
+      { id:"dr5", auteur:"Platon", oeuvre:"Gorgias", citation:"Commettre l'injustice est pire que la subir, et j'aimerais mieux quant à moi, la subir que la commettre.", explication:"Commettre l'injustice c'est perdre sa dignité. Il est en nous un témoin intérieur qui nous juge." },
+    ]
+  },
+  { id:10, slug:"travail", title:"Le travail et la production", emoji:"⚒️", color:"#92400E",
+    citations:[
+      { id:"t1", auteur:"Hegel", oeuvre:"La phénoménologie de l'Esprit", citation:"Le travail est un processus de libération et d'objectivation de l'homme.", explication:"Par le travail, l'esprit parvient à une prise de conscience de soi au sein de l'être." },
+      { id:"t2", auteur:"Karl Marx", oeuvre:"Le manuscrit de 1844", citation:"Le travail aliéné, le travail dans lequel l'homme se dépossède du fruit de son travail est sacrifice de soi, mortification.", explication:"L'homme ne se réalise que par le travail non aliéné." },
+      { id:"t3", auteur:"Jules Vuillemin", oeuvre:"L'Etre et le travail", citation:"Je travaille donc je suis.", explication:"L'homme n'existe que par le travail." },
+      { id:"t4", auteur:"Voltaire", oeuvre:"", citation:"Le travail éloigne de nous trois grands maux : l'ennui, le vice et le besoin.", explication:"Le travail épanouit l'homme et le met à l'abri de l'oisiveté et des pratiques déshumanisantes." },
+      { id:"t5", auteur:"Engels", oeuvre:"Dialectique de la nature", citation:"L'homme se sert de la nature à ses fins, il la domine. Et c'est en cela que consiste la dernière différence entre l'homme et les animaux ; et cette différence, c'est encore une fois au travail que l'on le doit.", explication:"L'homme se diffère de l'animal par le travail." },
+    ]
+  },
+  { id:11, slug:"science", title:"La science", emoji:"🔬", color:"#1E40AF",
+    citations:[
+      { id:"sc1", auteur:"René Descartes", oeuvre:"Discours de la Méthode", citation:"La science nous rend maîtres et possesseurs de la nature.", explication:"La science donne à l'homme le savoir et la technique lui donne le pouvoir de transformer la nature." },
+      { id:"sc2", auteur:"Gaston Bachelard", oeuvre:"La formation de l'esprit scientifique", citation:"L'opinion a, en droit, toujours tort.", explication:"L'opinion n'empêche pas de penser. Elle est le premier obstacle que la science doit surmonter." },
+      { id:"sc3", auteur:"Gaston Bachelard", oeuvre:"La formation de l'esprit scientifique", citation:"Il n'y a pas de vérité première, il n'y a que des erreurs premières.", explication:"Pour découvrir la vérité, il faut aller au-delà des évidences et soumettre tout au crible de l'esprit critique." },
+      { id:"sc4", auteur:"Auguste Comte", oeuvre:"Cours de philosophie positive", citation:"Science, d'où prévoyance ; prévoyance, d'où action.", explication:"La connaissance permet à l'homme de prévoir et donc d'agir sur le monde." },
+      { id:"sc5", auteur:"Jean Rostand", oeuvre:"", citation:"La science a fait de nous des dieux avant même que nous méritons d'être des hommes.", explication:"La science donne le savoir et le pouvoir de créer et transformer le monde mais sans la sagesse." },
+      { id:"sc6", auteur:"Henri Bergson", oeuvre:"Les deux sources de la morale et de la religion", citation:"L'humanité gémit, à demi écrasée sous le poids des progrès qu'elle a faits.", explication:"Les conséquences des progrès technoscientifiques prouvent que la science n'est pas synonyme de sagesse." },
+    ]
+  },
+  { id:12, slug:"verite", title:"La vérité", emoji:"💡", color:"#B45309",
+    citations:[
+      { id:"vr1", auteur:"Protagoras", oeuvre:"", citation:"L'homme est la mesure de toute chose, de l'être qui est, du non-être qui n'est pas.", explication:"La vérité est relative : elle varie selon les circonstances, les humeurs et les personnes." },
+      { id:"vr2", auteur:"Gaston Bachelard", oeuvre:"La formation de l'esprit scientifique", citation:"Il n'y a pas de vérité première, il n'y a que des erreurs premières.", explication:"Pour découvrir la vérité, il faut aller au-delà des évidences." },
+      { id:"vr3", auteur:"William James", oeuvre:"", citation:"Ce qui est vrai, c'est ce qui est avantageux de n'importe quelle manière.", explication:"Pour le pragmatisme, l'idée vraie est celle qui a le plus grand rendement, la plus efficace." },
+      { id:"vr4", auteur:"Blaise Pascal", oeuvre:"Pensées", citation:"Vérité en deçà des Pyrénées, erreur au-delà.", explication:"En matière de justice et de mœurs, il n'y a pas de vérité absolue sur la terre." },
+      { id:"vr5", auteur:"Karl Jaspers", oeuvre:"Introduction à la philosophie", citation:"L'essence de la philosophie, c'est la recherche de la vérité, non sa possession.", explication:"Ce qui fait la philosophie, c'est l'insatiable désir de connaître davantage." },
+    ]
+  },
+  { id:13, slug:"art", title:"L'art", emoji:"🎨", color:"#9333EA",
+    citations:[
+      { id:"ar1", auteur:"Hegel", oeuvre:"", citation:"L'art est l'esprit se prenant pour objet.", explication:"L'art spiritualise le monde, il imprime des valeurs à des choses insignifiantes en soi." },
+      { id:"ar2", auteur:"Aristote", oeuvre:"", citation:"L'art est imitation de la nature.", explication:"L'imitation est une tendance naturelle chez l'homme. L'art est mimèsis mais une imitation créatrice." },
+      { id:"ar3", auteur:"André Malraux", oeuvre:"", citation:"L'art est un anti-destin.", explication:"L'artiste, en donnant forme à ses épreuves, imprime la marque de l'homme libre sur l'univers." },
+      { id:"ar4", auteur:"Emmanuel Kant", oeuvre:"", citation:"Est beau ce qui plaît universellement sans concept.", explication:"Il n'existe pas d'idée du beau, un modèle ou une référence. Ce qui est beau plaît à tout le monde parce qu'il plaît aux sens." },
+      { id:"ar5", auteur:"Oscar Wilde", oeuvre:"", citation:"Tout art est absolument inutile.", explication:"L'art est inutile et désintéressé, sa seule valeur est esthétique." },
+    ]
+  },
+  { id:14, slug:"autrui", title:"Autrui", emoji:"👁️", color:"#0E7490",
+    citations:[
+      { id:"au1", auteur:"Jean-Paul Sartre", oeuvre:"Huis clos", citation:"L'enfer c'est les autres.", explication:"L'enfer est sur terre dans les rapports nécessairement conflictuels que nous entretenons avec les autres." },
+      { id:"au2", auteur:"Gabriel Marcel", oeuvre:"", citation:"Et bien, pour moi, le ciel, c'est aussi les autres.", explication:"Autrui n'est pas toujours source de malheur. Il est aussi la source de mes joies et de mon bonheur." },
+      { id:"au3", auteur:"Thomas Hobbes", oeuvre:"Le Léviathan", citation:"L'homme est un loup pour l'homme.", explication:"L'homme ne s'affirme qu'au détriment de ses semblables. Chacun voit en l'autre les obstacles à son bonheur." },
+      { id:"au4", auteur:"Saidou Badian Kouyaté", oeuvre:"", citation:"L'homme n'est rien sans les hommes, il vient dans leurs mains et s'en va dans leurs mains.", explication:"C'est grâce à autrui que je vis. Il m'est impossible de m'épanouir sans ouverture vers autrui." },
+      { id:"au5", auteur:"Antoine de Saint-Exupéry", oeuvre:"Terre des hommes", citation:"Si tu diffères de moi, loin de me léser tu m'enrichis.", explication:"La différence et la diversité sont source de richesse, non de conflit." },
+    ]
+  },
+  { id:15, slug:"mort", title:"L'existence et la mort", emoji:"💀", color:"#4B5563",
+    citations:[
+      { id:"mo1", auteur:"Épicure", oeuvre:"Lettre à Ménécée", citation:"La mort n'est rien pour nous, puisque tant que nous vivons, la mort n'existe pas et lorsque la mort est là, alors nous ne sommes plus.", explication:"L'homme n'a aucune raison de craindre la mort puisqu'elle n'a aucun rapport ni avec les vivants ni avec les morts." },
+      { id:"mo2", auteur:"Martin Heidegger", oeuvre:"", citation:"Dès qu'un homme est né, il est assez vieux pour mourir.", explication:"L'homme est un 'être pour la mort', il est né pour mourir." },
+      { id:"mo3", auteur:"Montaigne", oeuvre:"Essais", citation:"Tu ne meurs pas de ce que tu es malade ; tu meurs de ce que tu es vivant.", explication:"La mort est la conséquence de la vie. La sagesse est d'accepter notre mort, et philosopher, c'est apprendre à mourir." },
+      { id:"mo4", auteur:"Jean-Paul Sartre", oeuvre:"L'Être et le Néant", citation:"La mort n'est jamais ce qui donne son sens à la vie, c'est au contraire ce qui lui ôte toute signification.", explication:"Pour Sartre athée, si la mort n'a pas de sens, la vie n'en a pas non plus. L'existence devient absurde." },
+      { id:"mo5", auteur:"Spinoza", oeuvre:"Ethique", citation:"L'homme libre ne pense à rien moins qu'à la mort et sa sagesse est une méditation non de la mort, mais de la vie.", explication:"La philosophie n'est pas une méditation de la mort mais de la vie." },
+    ]
+  },
+];
+
+// ───────────────────────────────────────────────────────────────
+// STATE
+// ───────────────────────────────────────────────────────────────
+let state = {
+  screen: 'home',         // home | theme | flashcard | quiz | trous | results
+  activeTab: 'home',      // home | progress
+  selectedTheme: null,
+  gameMode: null,         // flashcard | quiz | trous
+  cards: [],
+  cardIndex: 0,
+  cardFlipped: false,
+  score: 0,
+  total: 0,
+  knownCards: new Set(),
+  // Quiz
+  quizQuestion: null,
+  quizOptions: [],
+  quizAnswered: false,
+  quizCorrectIdx: null,
+  quizChosenIdx: null,
+  // Trous
+  trousAnswer: '',
+  trousAnswered: false,
+  trousCorrect: false,
+  // Progress
+  progress: JSON.parse(localStorage.getItem('pf_progress') || '{}'),
+  streak: parseInt(localStorage.getItem('pf_streak') || '0'),
+  lastDate: localStorage.getItem('pf_lastdate') || '',
+};
+
+function saveProgress() {
+  localStorage.setItem('pf_progress', JSON.stringify(state.progress));
+  const today = new Date().toDateString();
+  if (state.lastDate !== today) {
+    const yesterday = new Date(Date.now() - 86400000).toDateString();
+    if (state.lastDate === yesterday) state.streak++;
+    else state.streak = 1;
+    state.lastDate = today;
+    localStorage.setItem('pf_streak', state.streak);
+    localStorage.setItem('pf_lastdate', today);
+  }
+}
+
+function getProgress(themeId) {
+  return state.progress[themeId] || 0;
+}
+
+function shuffle(arr) {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+function getAllCitations() {
+  return themes.flatMap(t => t.citations.map(c => ({ ...c, theme: t.title, themeColor: t.color })));
+}
+
+// ───────────────────────────────────────────────────────────────
+// NAVIGATION
+// ───────────────────────────────────────────────────────────────
+function goHome() {
+  state.screen = 'home';
+  state.activeTab = 'home';
+  render();
+}
+
+function goTheme(theme) {
+  state.selectedTheme = theme;
+  state.screen = 'theme';
+  state.gameMode = 'flashcard';
+  render();
+}
+
+function startGame(mode) {
+  const t = state.selectedTheme;
+  state.gameMode = mode;
+  state.cards = shuffle(t.citations);
+  state.cardIndex = 0;
+  state.cardFlipped = false;
+  state.score = 0;
+  state.total = state.cards.length;
+  state.knownCards = new Set();
+  if (mode === 'quiz') setupQuiz();
+  if (mode === 'trous') setupTrous();
+  state.screen = mode;
+  render();
+}
+
+function startAll(mode) {
+  const all = shuffle(getAllCitations()).slice(0, 15);
+  state.selectedTheme = { title: 'Tout réviser', emoji: '📚', color: '#f0c040', citations: all };
+  state.gameMode = mode;
+  state.cards = all;
+  state.cardIndex = 0;
+  state.cardFlipped = false;
+  state.score = 0;
+  state.total = all.length;
+  state.knownCards = new Set();
+  if (mode === 'quiz') setupQuiz();
+  if (mode === 'trous') setupTrous();
+  state.screen = mode;
+  render();
+}
+
+// ───────────────────────────────────────────────────────────────
+// FLASHCARD LOGIC
+// ───────────────────────────────────────────────────────────────
+function flipCard() {
+  state.cardFlipped = !state.cardFlipped;
+  render();
+}
+
+function cardAnswer(known) {
+  if (known) {
+    state.score++;
+    state.knownCards.add(state.cards[state.cardIndex].id);
+  }
+  nextCard();
+}
+
+function nextCard() {
+  state.cardFlipped = false;
+  if (state.cardIndex < state.cards.length - 1) {
+    state.cardIndex++;
+    render();
+  } else {
+    finishGame();
+  }
+}
+
+// ───────────────────────────────────────────────────────────────
+// QUIZ LOGIC
+// ───────────────────────────────────────────────────────────────
+function setupQuiz() {
+  const card = state.cards[state.cardIndex];
+  const allAuthors = [...new Set(getAllCitations().map(c => c.auteur))];
+  const wrongAuthors = shuffle(allAuthors.filter(a => a !== card.auteur)).slice(0, 3);
+  const options = shuffle([card.auteur, ...wrongAuthors]);
+  state.quizQuestion = card;
+  state.quizOptions = options;
+  state.quizAnswered = false;
+  state.quizCorrectIdx = options.indexOf(card.auteur);
+  state.quizChosenIdx = null;
+}
+
+function answerQuiz(idx) {
+  if (state.quizAnswered) return;
+  state.quizAnswered = true;
+  state.quizChosenIdx = idx;
+  if (idx === state.quizCorrectIdx) state.score++;
+  render();
+}
+
+function nextQuiz() {
+  state.cardFlipped = false;
+  if (state.cardIndex < state.cards.length - 1) {
+    state.cardIndex++;
+    setupQuiz();
+    render();
+  } else {
+    finishGame();
+  }
+}
+
+// ───────────────────────────────────────────────────────────────
+// TROUS LOGIC
+// ───────────────────────────────────────────────────────────────
+function setupTrous() {
+  const card = state.cards[state.cardIndex];
+  state.trousAnswer = '';
+  state.trousAnswered = false;
+  state.trousCorrect = false;
+  // pick a key word from auteur
+  state.trousTarget = card.auteur;
+}
+
+function checkTrous() {
+  if (!state.trousAnswer.trim()) return;
+  state.trousAnswered = true;
+  const guess = state.trousAnswer.trim().toLowerCase();
+  const target = state.trousTarget.toLowerCase();
+  state.trousCorrect = guess === target || target.includes(guess) || guess.includes(target.split(' ').pop());
+  if (state.trousCorrect) state.score++;
+  render();
+}
+
+function nextTrous() {
+  if (state.cardIndex < state.cards.length - 1) {
+    state.cardIndex++;
+    setupTrous();
+    render();
+  } else {
+    finishGame();
+  }
+}
+
+// ───────────────────────────────────────────────────────────────
+// FINISH
+// ───────────────────────────────────────────────────────────────
+function finishGame() {
+  if (state.selectedTheme && state.selectedTheme.id) {
+    const pct = Math.round((state.score / state.total) * 100);
+    state.progress[state.selectedTheme.id] = Math.max(state.progress[state.selectedTheme.id] || 0, pct);
+    saveProgress();
+  }
+  state.screen = 'results';
+  render();
+}
+
+// ───────────────────────────────────────────────────────────────
+// RENDER HELPERS
+// ───────────────────────────────────────────────────────────────
+function getResultMsg(pct) {
+  if (pct >= 90) return { msg: '🏆 Excellent !', sub: 'Tu maîtrises parfaitement ce thème !' };
+  if (pct >= 70) return { msg: '🎯 Très bien !', sub: 'Continue comme ça, le Bac est à ta portée !' };
+  if (pct >= 50) return { msg: '📚 Pas mal !', sub: 'Encore un peu de révision et tu y es !' };
+  return { msg: '💪 On s\'accroche !', sub: 'Revois ce thème et retente ta chance.' };
+}
+
+// ───────────────────────────────────────────────────────────────
+// RENDER
+// ───────────────────────────────────────────────────────────────
+function render() {
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    ${renderHeader()}
+    <div class="screen">
+      ${renderScreen()}
+    </div>
+    ${renderNav()}
+  `;
+  bindEvents();
+}
+
+function renderHeader() {
+  const totalCitations = themes.reduce((a, t) => a + t.citations.length, 0);
+  return `
+    <header>
+      <div class="logo">
+        PhiloFlash
+        <span>${totalCitations} citations · Bac Philo</span>
+      </div>
+      ${state.streak > 0 ? `<div class="score-pill">🔥 ${state.streak}j</div>` : '<div class="score-pill">✨ Bac</div>'}
+    </header>`;
+}
+
+function renderNav() {
+  if (['flashcard','quiz','trous','results'].includes(state.screen)) return '';
+  return `
+    <nav class="bottom-nav">
+      <div class="nav-item ${state.activeTab==='home'?'active':''}" data-nav="home">
+        <span>🏠</span><span>Accueil</span>
+      </div>
+      <div class="nav-item ${state.activeTab==='progress'?'active':''}" data-nav="progress">
+        <span>📊</span><span>Progrès</span>
+      </div>
+    </nav>`;
+}
+
+function renderScreen() {
+  switch(state.screen) {
+    case 'home': return renderHome();
+    case 'progress': return renderProgress();
+    case 'theme': return renderThemeScreen();
+    case 'flashcard': return renderFlashcard();
+    case 'quiz': return renderQuiz();
+    case 'trous': return renderTrous();
+    case 'results': return renderResults();
+  }
+  return '';
+}
+
+function renderHome() {
+  const totalProgress = themes.reduce((a, t) => a + (state.progress[t.id] || 0), 0);
+  const avgProgress = Math.round(totalProgress / themes.length);
+
+  return `
+    <div class="hero">
+      <div class="hero-title">Prêt pour le <em>Bac Philo</em> ?</div>
+      <div class="hero-sub">Maîtrise tes citations par thème.<br>Flashcards · Quiz · Dictée</div>
+    </div>
+
+    ${state.streak > 1 ? `
+      <div class="streak-banner">
+        <span class="flame">🔥</span>
+        <div>
+          <h4>${state.streak} jours de suite !</h4>
+          <p>Continue ta streak, tu es sur la bonne voie !</p>
+        </div>
+      </div>` : ''}
+
+    <div class="modes-grid">
+      <div class="mode-card featured" data-action="startAll" data-mode="quiz">
+        <div class="icon">⚡</div>
+        <h3>Défi Express — Tous thèmes</h3>
+        <p>15 questions mélangées de tous les thèmes pour te challenger</p>
+      </div>
+      <div class="mode-card" data-action="startAll" data-mode="flashcard">
+        <div class="icon">🃏</div>
+        <h3>Flashcards</h3>
+        <p>Parcours les citations carte par carte</p>
+      </div>
+      <div class="mode-card" data-action="startAll" data-mode="trous">
+        <div class="icon">✏️</div>
+        <h3>Qui a dit ça ?</h3>
+        <p>Retrouve l'auteur de chaque citation</p>
+      </div>
+    </div>
+
+    <div class="section-title">📚 Réviser par thème</div>
+    <div class="themes-list">
+      ${themes.map(t => {
+        const prog = state.progress[t.id] || 0;
+        return `
+        <div class="theme-row" data-action="goTheme" data-id="${t.id}">
+          <span class="emoji">${t.emoji}</span>
+          <div class="info">
+            <h4>${t.title}</h4>
+            <small>${t.citations.length} citations${prog > 0 ? ` · ${prog}% maîtrisé` : ''}</small>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" style="width:${prog}%;background:${t.color}"></div>
+            </div>
+          </div>
+          <span class="arrow">›</span>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+function renderProgress() {
+  const done = themes.filter(t => (state.progress[t.id] || 0) >= 80).length;
+  const totalCitations = themes.reduce((a, t) => a + t.citations.length, 0);
+
+  return `
+    <div style="text-align:center;padding:24px 0 20px">
+      <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:var(--gold)">${done}/${themes.length}</div>
+      <div style="color:var(--text-muted);font-size:13px;margin-top:4px">thèmes maîtrisés (≥80%)</div>
+    </div>
+
+    <div class="badge-row">
+      ${done >= 1 ? '<div class="badge">🌱 Premier thème</div>' : ''}
+      ${done >= 5 ? '<div class="badge">📚 Mi-parcours</div>' : ''}
+      ${done >= themes.length ? '<div class="badge">🏆 Bachelier philo</div>' : ''}
+      ${state.streak >= 3 ? `<div class="badge">🔥 ${state.streak}j de streak</div>` : ''}
+    </div>
+
+    <div class="section-title" style="margin-top:28px">Tes thèmes</div>
+    <div class="themes-list">
+      ${themes.map(t => {
+        const prog = state.progress[t.id] || 0;
+        const stars = prog >= 80 ? '⭐' : prog >= 50 ? '▸' : '○';
+        return `
+        <div class="theme-row" data-action="goTheme" data-id="${t.id}">
+          <span class="emoji">${t.emoji}</span>
+          <div class="info">
+            <h4>${t.title}</h4>
+            <small>${prog > 0 ? prog + '% maîtrisé' : 'Pas encore commencé'}</small>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" style="width:${prog}%;background:${t.color}"></div>
+            </div>
+          </div>
+          <span style="font-size:16px;color:var(--gold)">${stars}</span>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+function renderThemeScreen() {
+  const t = state.selectedTheme;
+  return `
+    <div class="theme-header">
+      <button class="back-btn" data-action="back">←</button>
+      <h2>${t.emoji} ${t.title}</h2>
+    </div>
+
+    <div class="mode-tabs">
+      <div class="mode-tab ${state.gameMode==='flashcard'?'active':''}" data-mode="flashcard">🃏 Flashcards</div>
+      <div class="mode-tab ${state.gameMode==='quiz'?'active':''}" data-mode="quiz">🎯 Quiz</div>
+      <div class="mode-tab ${state.gameMode==='trous'?'active':''}" data-mode="trous">✏️ Qui a dit ça ?</div>
+    </div>
+
+    ${renderModePreview()}
+
+    <button class="next-btn" data-action="startGame" style="margin-top:8px">
+      Commencer — ${t.citations.length} citations
+    </button>
+  `;
+}
+
+function renderModePreview() {
+  const modes = {
+    flashcard: {
+      icon: '🃏',
+      title: 'Mode Flashcards',
+      desc: 'Lis la citation, essaie de retrouver l\'auteur et l\'œuvre, puis retourne la carte pour vérifier. Évalue toi-même si tu savais ou non.',
+      tip: '👆 Appuie sur la carte pour la retourner'
+    },
+    quiz: {
+      icon: '🎯',
+      title: 'Mode Quiz',
+      desc: 'Une citation s\'affiche, 4 auteurs proposés. Clique sur le bon auteur. Tu as l\'explication après chaque réponse.',
+      tip: '⚡ Réponds le plus vite possible !'
+    },
+    trous: {
+      icon: '✏️',
+      title: 'Qui a dit ça ?',
+      desc: 'Une citation s\'affiche. Tape le nom de l\'auteur de mémoire. Parfait pour mémoriser vraiment les auteurs.',
+      tip: '✍️ Tape juste le nom de famille si besoin'
+    }
+  };
+  const m = modes[state.gameMode];
+  return `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:12px">
+      <div style="font-size:28px;margin-bottom:10px">${m.icon}</div>
+      <h3 style="font-size:16px;font-weight:600;margin-bottom:8px">${m.title}</h3>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:10px">${m.desc}</p>
+      <div style="background:var(--surface2);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--gold)">${m.tip}</div>
+    </div>
+  `;
+}
+
+function renderFlashcard() {
+  const card = state.cards[state.cardIndex];
+  const t = state.selectedTheme;
+  const prog = state.cardIndex + 1;
+
+  return `
+    <div class="theme-header">
+      <button class="back-btn" data-action="back">←</button>
+      <h2 style="font-size:16px">${t.emoji} ${t.title}</h2>
+    </div>
+    <div class="card-counter">${prog} / ${state.total}</div>
+    <div style="margin-bottom:8px">
+      <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden">
+        <div style="height:100%;width:${(prog/state.total)*100}%;background:${t.color};border-radius:2px;transition:width 0.3s"></div>
+      </div>
+    </div>
+
+    <div class="flashcard-area">
+      <div class="flashcard" style="--theme-color:${t.color}20" data-action="flip">
+        ${!state.cardFlipped ? `
+          <div class="card-face">
+            <div class="card-label">📜 Citation</div>
+            <div class="card-citation">"${card.citation}"</div>
+          </div>
+          <div class="card-hint"><span>Appuie pour révéler l'auteur 👆</span></div>
+        ` : `
+          <div class="card-face">
+            <div class="card-label">✅ Auteur & explication</div>
+            <div class="card-back-author">${card.auteur}</div>
+            <div class="card-back-oeuvre">${card.oeuvre || 'Citation célèbre'}</div>
+            <div class="card-citation" style="font-style:normal;font-size:15px;font-family:'Inter',sans-serif;margin-bottom:0">"${card.citation}"</div>
+            <div class="card-back-expl">${card.explication}</div>
+          </div>
+        `}
+      </div>
+    </div>
+
+    ${state.cardFlipped ? `
+      <div class="card-actions">
+        <button class="card-btn fail" data-action="cardFail">😅 Je savais pas</button>
+        <button class="card-btn pass" data-action="cardPass">✅ Je savais !</button>
+      </div>
+    ` : ''}
+  `;
+}
+
+function renderQuiz() {
+  const q = state.quizQuestion;
+  const prog = state.cardIndex + 1;
+  const t = state.selectedTheme;
+
+  return `
+    <div class="theme-header">
+      <button class="back-btn" data-action="back">←</button>
+      <h2 style="font-size:16px">${t.emoji} Quiz</h2>
+    </div>
+    <div class="card-counter">${prog} / ${state.total} · Score: ${state.score}</div>
+    <div style="margin-bottom:16px">
+      <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden">
+        <div style="height:100%;width:${(prog/state.total)*100}%;background:${t.color};border-radius:2px;transition:width 0.3s"></div>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <div class="quiz-q-label">Qui a dit cette citation ?</div>
+      <div class="quiz-q-text">"${q.citation}"</div>
+    </div>
+
+    <div class="quiz-options">
+      ${state.quizOptions.map((opt, i) => {
+        let cls = 'quiz-option';
+        if (state.quizAnswered) {
+          if (i === state.quizCorrectIdx) cls += ' correct';
+          else if (i === state.quizChosenIdx) cls += ' wrong';
+          else cls += ' disabled';
+        }
+        return `
+          <div class="${cls}" data-action="answerQuiz" data-idx="${i}">
+            <span class="opt-letter">${['A','B','C','D'][i]}</span>
+            ${opt}
+          </div>`;
+      }).join('')}
+    </div>
+
+    ${state.quizAnswered ? `
+      <div class="quiz-feedback">
+        <strong>${state.quizChosenIdx === state.quizCorrectIdx ? '✅ Bonne réponse !' : '❌ ' + state.quizOptions[state.quizCorrectIdx]}</strong>
+        ${q.oeuvre ? `<em style="color:var(--text-muted);font-size:12px">${q.oeuvre}</em><br><br>` : ''}
+        ${q.explication}
+      </div>
+      <button class="next-btn" data-action="nextQuiz">${state.cardIndex < state.total - 1 ? 'Question suivante →' : 'Voir les résultats →'}</button>
+    ` : ''}
+  `;
+}
+
+function renderTrous() {
+  const card = state.cards[state.cardIndex];
+  const prog = state.cardIndex + 1;
+  const t = state.selectedTheme;
+
+  return `
+    <div class="theme-header">
+      <button class="back-btn" data-action="back">←</button>
+      <h2 style="font-size:16px">${t.emoji} Qui a dit ça ?</h2>
+    </div>
+    <div class="card-counter">${prog} / ${state.total} · Score: ${state.score}</div>
+    <div style="margin-bottom:16px">
+      <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden">
+        <div style="height:100%;width:${(prog/state.total)*100}%;background:${t.color};border-radius:2px;transition:width 0.3s"></div>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <div class="quiz-q-label">✍️ Retrouve l'auteur</div>
+      <div class="quiz-q-text">"${card.citation}"</div>
+      ${card.oeuvre ? `<div style="font-size:12px;color:var(--text-muted);margin-top:8px;font-style:italic">— ${card.oeuvre}</div>` : ''}
+    </div>
+
+    ${!state.trousAnswered ? `
+      <input
+        class="trous-input"
+        type="text"
+        id="trousInput"
+        placeholder="Tape le nom de l'auteur..."
+        value="${state.trousAnswer}"
+        autocomplete="off"
+      />
+      <button class="next-btn" data-action="checkTrous">Valider →</button>
+    ` : `
+      <input
+        class="trous-input ${state.trousCorrect ? 'correct-input' : 'wrong-input'}"
+        type="text"
+        value="${state.trousAnswer}"
+        disabled
+      />
+      <div class="quiz-feedback">
+        <strong>${state.trousCorrect ? '✅ Bravo !' : '❌ C\'était : ' + card.auteur}</strong>
+        ${card.explication}
+      </div>
+      <button class="next-btn" data-action="nextTrous">${prog < state.total ? 'Suivant →' : 'Voir les résultats →'}</button>
+    `}
+  `;
+}
+
+function renderResults() {
+  const pct = Math.round((state.score / state.total) * 100);
+  const { msg, sub } = getResultMsg(pct);
+  const t = state.selectedTheme;
+
+  return `
+    <div class="results-screen">
+      <div style="font-size:48px;margin-bottom:16px">${pct >= 80 ? '🏆' : pct >= 60 ? '🎯' : pct >= 40 ? '📚' : '💪'}</div>
+      <div class="results-score">${state.score}<small>/${state.total}</small></div>
+      <div class="results-msg">${msg}</div>
+      <div class="results-sub">${sub}</div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin:20px 0;text-align:left">
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:1px">Résumé</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-size:14px">Thème</span>
+          <span style="font-size:14px;font-weight:600">${t.emoji} ${t.title}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-size:14px">Mode</span>
+          <span style="font-size:14px;font-weight:600">${state.gameMode === 'flashcard' ? '🃏 Flashcards' : state.gameMode === 'quiz' ? '🎯 Quiz' : '✏️ Qui a dit ça ?'}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:14px">Score</span>
+          <span style="font-size:16px;font-weight:700;color:var(--gold)">${pct}%</span>
+        </div>
+        <div style="height:6px;background:var(--border);border-radius:3px;margin-top:12px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${pct>=80?'#4ade80':pct>=60?'#facc15':'#f87171'};border-radius:3px;transition:width 1s"></div>
+        </div>
+      </div>
+
+      <button class="results-btn" data-action="retry">🔄 Réessayer</button>
+      <button class="results-btn outline" data-action="goHome">🏠 Accueil</button>
+    </div>
+  `;
+}
+
+// ───────────────────────────────────────────────────────────────
+// EVENTS
+// ───────────────────────────────────────────────────────────────
+function bindEvents() {
+  // Nav
+  document.querySelectorAll('[data-nav]').forEach(el => {
+    el.addEventListener('click', () => {
+      state.activeTab = el.dataset.nav;
+      state.screen = el.dataset.nav;
+      render();
+    });
+  });
+
+  // Actions
+  document.querySelectorAll('[data-action]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      const action = el.dataset.action;
+      if (action === 'goTheme') {
+        const theme = themes.find(t => t.id == el.dataset.id);
+        goTheme(theme);
+      } else if (action === 'back') {
+        if (['flashcard','quiz','trous'].includes(state.screen)) {
+          state.screen = 'theme';
+          render();
+        } else {
+          goHome();
+        }
+      } else if (action === 'flip') {
+        flipCard();
+      } else if (action === 'cardFail') {
+        cardAnswer(false);
+      } else if (action === 'cardPass') {
+        cardAnswer(true);
+      } else if (action === 'startGame') {
+        startGame(state.gameMode);
+      } else if (action === 'answerQuiz') {
+        answerQuiz(parseInt(el.dataset.idx));
+      } else if (action === 'nextQuiz') {
+        nextQuiz();
+      } else if (action === 'checkTrous') {
+        const input = document.getElementById('trousInput');
+        if (input) state.trousAnswer = input.value;
+        checkTrous();
+      } else if (action === 'nextTrous') {
+        nextTrous();
+      } else if (action === 'retry') {
+        state.screen = 'theme';
+        render();
+      } else if (action === 'goHome') {
+        goHome();
+      } else if (action === 'startAll') {
+        startAll(el.dataset.mode);
+      }
+    });
+  });
+
+  // Mode tabs
+  document.querySelectorAll('[data-mode]').forEach(el => {
+    el.addEventListener('click', () => {
+      state.gameMode = el.dataset.mode;
+      render();
+    });
+  });
+
+  // Trous input — enter to validate
+  const ti = document.getElementById('trousInput');
+  if (ti) {
+    ti.focus();
+    ti.addEventListener('input', e => { state.trousAnswer = e.target.value; });
+    ti.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !state.trousAnswered) checkTrous();
+    });
+  }
+}
+
+// ───────────────────────────────────────────────────────────────
+// INIT
+// ───────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
